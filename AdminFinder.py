@@ -17,7 +17,7 @@ def checkURL(path):
     print(completeURL)
     grab=requests.get(completeURL, headers=useragent)
     print(grab.status_code) #Comment if you only want the found URLS to be printed
-    if grab.status_code==400:
+    if grab.status_code==200:
         print("Found: "+  completeURL)
 
 readLines()
