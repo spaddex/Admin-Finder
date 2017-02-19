@@ -38,6 +38,7 @@ def requester(completeURL):
 	global positives, htmlrequest, inform
 	try:
 		htmlrequest = requests.get(completeURL, headers=useragent, allow_redirects=False)
+		print(completeURL)
 		if htmlrequest.status_code == 200:
 			positives += 1
 			foundPages.append(completeURL)
@@ -60,7 +61,7 @@ def main():
 		for path in pathArray:
 			t = Thread(target=requester, args=(baseurl + path.strip(),))
 			t.start()
-			time.sleep(.3)  # We can be somewhat gentle :)
+			time.sleep(.1)  # We can be somewhat gentle :)
 			threadList.append(t)
 
 		for tlist in threadList:
