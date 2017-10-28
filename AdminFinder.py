@@ -3,6 +3,7 @@
 
 import sys
 import time
+import re
 import requests
 from threading import Thread
 
@@ -24,10 +25,9 @@ threadList = []  # Somewhere to put our threads
 positives = 0  # To keep track of how many matches we get
 foundPages = []
 inform = 0
+baseURLLenght = 0
 
-"""Loads the paths into the pathArray"""
-
-
+#Loads the paths into the pathArray
 def readLines():
     with open("admin_locations.txt", 'r') as x:
         paths = x.readlines()
@@ -36,23 +36,32 @@ def readLines():
         print("Loaded " + str(len(pathArray)) + " paths")
 
 
+# Sends the requests, and prints if URL is found
 def requester(completeURL):
     global positives, htmlrequest, inform
     try:
         htmlrequest = requests.get(completeURL, headers=useragent, allow_redirects=False)
-        print(completeURL)
+        showRequest(htmlrequest)
+        #print(completeURL)
         if htmlrequest.status_code == 200:
             positives += 1
             foundPages.append(completeURL)
     except Exception as exp:
         print(bcolors.WARNING + "Something failed: " + str(exp) + ". Missed this request: " + str(completeURL) + bcolors.ENDC)
-
     if positives < 5 and (htmlrequest.status_code == 200):
         print(bcolors.OKGREEN + "Found: " + str(completeURL) + bcolors.ENDC)
-
     elif positives > 5 and (inform == 0):
         print(bcolors.FAIL + "Never mind, false positives. Send me a ctrl+c" + bcolors.ENDC)
         inform += 1
+
+
+# Indents and prints requests
+def showRequest(requestObject):
+    global baseURLLenght
+    allLenghts = [len(x) for x in pathArray]
+    longestRequest = (int(baseURLLenght) + int(max(allLenghts)))
+    indentLenght = (longestRequest + 3) - len(requestObject.url)
+    print(str(requestObject.url) + indentLenght*' '  + 'status code: ' + str(requestObject.status_code) + '\t response size: ' + str(len(requestObject.content)))
 
 
 # Get input on commandline
@@ -84,7 +93,9 @@ def askForAttackURL():
 
 
 def main():
+    global baseURLLenght
     baseurl = getAttackURL()
+    baseURLLenght = len(baseurl)
     readLines()
     try:
         for path in pathArray:
